@@ -25,7 +25,7 @@ public class BigCrafters {
             size = 1;
             squareSprite = false;
             craftEffect = Fx.mineSmall;
-            craftTime = 60;
+            craftTime = 120;
             hasPower = true;
             hasLiquids = false;
             envEnabled |= Env.space | Env.underwater;
@@ -37,14 +37,15 @@ public class BigCrafters {
                 circleSpace = 1;
                 flameRad = 0.5f;
                 flameRadiusMag = 0.15f;
+                particleRad = 3;
             }}, new DrawDefault());
             fogRadius = 2;
             researchCost = with(Items.beryllium, 5, Items.graphite, 5);
             ambientSound = Sounds.smelter;
             ambientSoundVolume = 0.07f;
-            consumeItems(with(Items.sand, 2));
+            consumeItems(with(Items.sand, 3));
             outputItem = new ItemStack(Items.silicon, 2);
-            consumePower(2f);
+            consumePower(1.5f);
         }};
     }
 }
