@@ -103,11 +103,11 @@ public class BigTurrets {
             size = 2;
             squareSprite = false;
             envEnabled |= Env.space;
-            reload = 30f;
-            recoil = 1f;
-            range = 120;
+            reload = 40f;
+            recoil = 1.5f;
+            range = 150;
             shootCone = 3f;
-            scaledHealth = 60;
+            scaledHealth = 90;
             rotateSpeed = 2.5f;
             researchCostMultiplier = 0.15f;
             buildTime = 60f * 2.5f;
