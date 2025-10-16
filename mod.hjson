@@ -5,7 +5,7 @@ displayName: "Big Mod"
 name: "big"
 
 #your name
-author: "twcash"
+author: "twcash/sh1penfire"
 
 #the fully qualified main class of the mod
 main: "big.BigMod"
