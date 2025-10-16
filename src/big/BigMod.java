@@ -1,5 +1,6 @@
 package big;
 
+import big.content.BigCrafters;
 import mindustry.mod.*;
 
 public class BigMod extends Mod{
@@ -9,7 +10,6 @@ public class BigMod extends Mod{
 
     @Override
     public void loadContent(){
-
-
+        BigCrafters.load();
     }
 }
