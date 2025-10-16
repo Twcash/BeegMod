@@ -1,20 +1,8 @@
-#the mod name as displayed in-game
 displayName: "Big Mod"
-
-#the internal name of your mod
 name: "big"
-
-#your name
 author: "twcash/sh1penfire"
-
-#the fully qualified main class of the mod
 main: "big.BigMod"
 description: "You always know the bigger the block the better the mod is."
-
 version: 1.0
-
-#the minimum game build required to run this mod
 minGameVersion: 152.1
-
-#this is a java mod
 java: true
