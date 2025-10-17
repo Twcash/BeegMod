@@ -26,7 +26,7 @@ public class BigMod extends Mod {
         BigTurrets.load();
         BigDefense.load();
     }
-
+    //TODO Move to own handler class.
     @Override
     public void init() {
             ScoreBoardFragment scoreboard = new ScoreBoardFragment();
