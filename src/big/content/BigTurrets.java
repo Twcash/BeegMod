@@ -100,6 +100,7 @@ public class BigTurrets {
             coolantMultiplier = 15f;
             shootSound = Sounds.shootSnap;
             targetUnderBlocks = false;
+            squareSprite = false;
             ammoPerShot = 2;
             drawer = new DrawTurret("reinforced-");
             shootY = -1;
