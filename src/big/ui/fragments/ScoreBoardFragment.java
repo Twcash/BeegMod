@@ -3,225 +3,215 @@ package big.ui.fragments;
 import arc.Core;
 import arc.Events;
 import arc.graphics.Color;
-import arc.graphics.g2d.TextureRegion;
-import arc.math.Interp;
 import arc.math.Mathf;
-import arc.scene.Action;
-import arc.scene.Group;
-import arc.scene.actions.Actions;
 import arc.scene.event.Touchable;
 import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.Image;
 import arc.scene.ui.Label;
 import arc.scene.ui.layout.Table;
-import arc.scene.ui.layout.WidgetGroup;
-import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.*;
-import big.content.BigFx;
 import mindustry.Vars;
+import mindustry.core.GameState;
 import mindustry.game.EventType;
-import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
-import mindustry.ui.Fonts;
 import mindustry.ui.Styles;
-import mindustry.content.Fx;
-import static mindustry.Vars.ui;
 
-
-
-//Ultrakill styled score board UI.
-//TODO BIG code cleanup. Make the thing work off an actual update loop...
-//TODO Make points "streak based" and reset after a time with little point improvement.
-//TODO Actual visuals rather than a blank grey box with some words.
+//ULTRAKILL
 public class ScoreBoardFragment extends Table {
-
     private final Table layout;
+    private final Table wordLayout;
     private final Label totalLabel;
     private final Image titleImage;
     private final Image background;
     private final Image scoreBar;
+
     private final Seq<TextureRegionDrawable> titleTiers = new Seq<>();
-    private final WidgetGroup popupLayer;
-    private final Table rowTable;
-    private TextureRegion one= new TextureRegion();
-    private TextureRegion two= new TextureRegion();
-    private TextureRegion three= new TextureRegion();
-    private TextureRegion four= new TextureRegion();
-    private TextureRegion five = new TextureRegion();
+    private final Seq<ReasonStack> reasonStacks = new Seq<>();
+
+    private final float width = 500f, height = 300f, margin = 0f;
+
     private float rush = 0f;
     private int totalScore = 0;
     private int tier = 0;
 
-    private final float width = 250f;
-    private final float height = 180f;
-    private final float margin = 10f;
-    public void loadTiers(){
-        titleTiers.clear();
-        //TODO This needs a big cleanup
-        one = Core.atlas.find("big-titlecard-lame");
-        two = Core.atlas.find("big-titlecard-ok");
-        three = Core.atlas.find("big-titlecard-interesting");
-        four = Core.atlas.find("big-titlecard-amazing");
-        five = Core.atlas.find("big-titlecard-big");
-        titleTiers.addAll(new TextureRegionDrawable(one),new TextureRegionDrawable(two),new TextureRegionDrawable(three),new TextureRegionDrawable(four),new TextureRegionDrawable(five));
-    }
+    private final float wordLifetime = 5 * 60f;
+    private float titleAnimTime = 0f;
 
     public ScoreBoardFragment() {
         loadTiers();
 
         setFillParent(true);
-        visible(() -> ui.hudfrag.shown);
+        visible(() -> Vars.ui.hudfrag.shown);
         touchable = Touchable.disabled;
 
-        popupLayer = new WidgetGroup();
-        addChild(popupLayer);
-
-        // background
+        // Background
         background = new Image(Core.atlas.find("white"));
         background.setColor(Color.valueOf("222222cc"));
         background.setScaling(Scaling.stretch);
         background.setSize(width, height);
-        background.x = Core.graphics.getWidth() - width - margin;
-        background.y = Core.graphics.getHeight() - height - margin;
+        background.setPosition(Core.graphics.getWidth() - width - margin,
+                Core.graphics.getHeight() - height - margin);
         addChild(background);
 
-        // layout table
+        // Main layout
         layout = new Table();
         layout.setSize(width, height);
-        layout.x = background.x;
-        layout.y = background.y;
+        layout.setPosition(background.x, background.y + height - 300f);
         addChild(layout);
 
         titleImage = new Image(titleTiers.get(0));
-        layout.add(titleImage).size(width - 30f, 60f).padBottom(8f).row();
+        layout.add(titleImage).size(width - 110f, 60f).padBottom(8f).row();
 
-        // score bar
         scoreBar = new Image(Core.atlas.find("white"));
         scoreBar.setColor(Pal.accent);
         scoreBar.setOrigin(Align.left);
-        scoreBar.setScale(0f);
+        scoreBar.setScale(0f, 1);
         layout.add(scoreBar).width(width - 30f).height(12f).padBottom(10f).row();
 
-        // total label
         totalLabel = new Label("0", Styles.outlineLabel);
         totalLabel.setFontScale(1.2f);
         layout.add(totalLabel).padBottom(8f).row();
 
-        // stacked row table
-        rowTable = new Table();
-        rowTable.top().left();
-        rowTable.x = layout.x + 5f;
-        rowTable.y = layout.y - 25f;
-        addChild(rowTable);
+        wordLayout = new Table();
+        wordLayout.setSize(width, height - 80f);
+        wordLayout.setPosition(background.x - 10f, background.y - 30f);
+        addChild(wordLayout);
 
+        Events.run(EventType.Trigger.update, this::update);
+    }
+
+    private void loadTiers() {
+        titleTiers.clear();
+        titleTiers.addAll(
+                new TextureRegionDrawable(Core.atlas.find("big-titlecard-lame")),
+                new TextureRegionDrawable(Core.atlas.find("big-titlecard-ok")),
+                new TextureRegionDrawable(Core.atlas.find("big-titlecard-interesting")),
+                new TextureRegionDrawable(Core.atlas.find("big-titlecard-amazing")),
+                new TextureRegionDrawable(Core.atlas.find("big-titlecard-big"))
+        );
     }
 
     public void addScore(String reason, int points) {
         totalScore += points;
-        totalLabel.setText("" + totalScore);
+        totalLabel.setText(String.valueOf(totalScore));
 
-        float baseGain = 0.15f;
-        float power = 2f;
-        rush += baseGain * Mathf.pow(1f - rush/2f, power);
-        rush = Mathf.clamp(rush, 0f, 1.1f);
+        float gain = 0.0002f * points;
+        rush += gain;
+        rush = Mathf.clamp(rush, 0f, 1f);
 
-        updateRushVisuals();
-
-        ScoreRow row = new ScoreRow(reason, points);
-        rowTable.add(row.label).row();
-
-        row.label.actions(
-                Actions.sequence(
-                        Actions.delay(1f),
-                        Actions.run(() -> spawnLetters(String.valueOf(row.label.getText()))),
-                        Actions.remove()
-                )
-        );
+        mergeReason(reason, points);
     }
-    private void updateRushVisuals() {
-        float[] rushThresholds = {0.01f, 0.1f, 0.3f, 0.7f, 0.8f};
-        int newTier = 0;
-        for (int i = 0; i < rushThresholds.length; i++) {
-            if (rush >= rushThresholds[i]) newTier = i;
+
+    private void mergeReason(String reason, int points) {
+        reason = reason.trim();
+        ReasonStack stack = null;
+        for (ReasonStack rs : reasonStacks) {
+            if (rs.reason.equalsIgnoreCase(reason)) {
+                stack = rs;
+                break;
+            }
         }
 
+        if (stack == null) {
+            ReasonStack rs = new ReasonStack(reason, points, 1);
+            reasonStacks.add(rs);
+            wordLayout.add(rs.label).padBottom(4f).row();
+        } else {
+            stack.merge(points);
+        }
+    }
+
+    private Color getReasonColor(String reason) {
+        reason = reason.toLowerCase();
+        if (reason.contains("kill")) return Color.scarlet.cpy();
+        if (reason.contains("built")) return Pal.accent.cpy();
+        if (reason.contains("destroyed")) return Color.scarlet.cpy();
+        return Pal.accent.cpy();
+    }
+
+    private void update() {
+        if (!Vars.state.isPaused()) {
+            rush -= Time.delta * (0.002f + rush * 0.006f);
+            rush = Mathf.clamp(rush, 0f, 1f);
+
+            if (rush <= 0f && !reasonStacks.isEmpty()) comboLost();
+
+            // Update title tier
+            updateTitle();
+
+            // Update reason words
+            for (int i = 0; i < reasonStacks.size; i++) {
+                ReasonStack rs = reasonStacks.get(i);
+                rs.update();
+                if (rs.isExpired()) {
+                    wordLayout.removeChild(rs.label, true);
+                    reasonStacks.remove(i--);
+                }
+            }
+            //TODO These don't do much.
+            scoreBar.setScale(rush, 1);
+            background.setScale(1f + rush * 0.08f);
+            background.setColor(Color.valueOf("222222cc").cpy().shiftHue(rush * 60f));
+        }
+    }
+
+    private void updateTitle() {
+        float[] thresholds = {0f, 0.25f, 0.45f, 0.7f, 0.9f};
+        int newTier = 0;
+        for (int i = 0; i < thresholds.length; i++) {
+            if (rush >= thresholds[i]) newTier = i;
+        }
         newTier = Mathf.clamp(newTier, 0, titleTiers.size - 1);
         if (newTier != tier) {
             tier = newTier;
+            titleAnimTime = 0f;
             titleImage.setDrawable(titleTiers.get(tier));
-            titleImage.clearActions();
-            titleImage.actions(
-                    Actions.sequence(
-                            Actions.rotateTo(12, 10),
-                            Actions.scaleTo(1.6f, 1.6f, 0.15f, Interp.pow3Out),
-                            Actions.scaleTo(1f, 1f, 0.3f, Interp.pow3In)
-                    )
-            );
-        }
-
-        // score bar reflects rush
-        scoreBar.clearActions();
-        scoreBar.actions(Actions.scaleTo(rush, 1f, 0.25f, Interp.sineOut));
-    }
-    //Spawn individual letters from a word then fly off.
-    private void spawnLetters(String text) {
-        float startX = layout.x + 5f;
-        float startY = layout.y - 25f;
-
-        char[] chars = text.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
-            Label letter = new Label(String.valueOf(c), new Label.LabelStyle(Fonts.outline, Pal.accent));
-
-            float scale = 0.7f + rush * 0.6f;
-            letter.setFontScale(scale);
-            letter.x = startX + i * 14f;
-            letter.y = startY + Mathf.range(5f);
-
-            popupLayer.addChild(letter);
-
-            float duration = 1.5f + Mathf.random(0.3f);
-            float intensity = 1f + rush * 2f;
-            float targetX = Core.graphics.getWidth() + 50f + Mathf.random(30f);
-
-            letter.actions(
-                    Actions.sequence(
-                            Actions.parallel(
-                                    Actions.moveTo(targetX, letter.y + Mathf.range(10f), duration, Interp.pow3Out),
-                                    Actions.fadeOut(duration),
-                                    Actions.rotateBy(Mathf.range(20f * intensity), duration),
-                                    Actions.scaleTo(scale + 0.2f * intensity, scale + 0.2f * intensity, duration / 2f)
-                            ),
-                            Actions.run(() -> {
-                                // simple spark VFX
-                                Fx.blockCrash.at(letter.x, letter.y, 0, Pal.accent);
-                                letter.remove();
-                            })
-                    )
-            );
         }
     }
-    //VERY VERY BAD
-    //TODO Remove, move to update loop
-    @Override
-    public void act(float delta) {
-        super.act(delta);
+    //TODO Add visuals to losing combos.
+    private void comboLost() {
+        rush = 0f;
+        totalScore = 0;
+        totalLabel.setText("0");
 
-        float decayRate = 0.01f;
-        rush = Mathf.lerpDelta(rush, 0f, decayRate);
-
-        Color c = Color.valueOf("222222cc").cpy();
-        c.shiftHue(rush * 50f);
-        background.setColor(c);
-        background.setScale(1f + rush * 0.08f);
+        for (ReasonStack rs : reasonStacks) {
+            wordLayout.removeChild(rs.label, true);
+        }
+        reasonStacks.clear();
     }
-    //TODO. Impact visuals for bigger scores (possibly certain events have special fonts or colors?)
-    private static class ScoreRow {
+
+    private class ReasonStack {
+        String reason;
+        int totalPoints, count;
         Label label;
-        public ScoreRow(String reason, int points) {
-            label = new Label(reason + " +" + points, new Label.LabelStyle(Fonts.outline, Pal.accent));
-            label.setFontScale(0.8f);
+        float life;
+
+        ReasonStack(String reason, int points, int count) {
+            this.reason = reason;
+            this.totalPoints = points;
+            this.count = count;
+            label = new Label(reason + " +" + points, Styles.outlineLabel);
+            label.setColor(getReasonColor(reason));
+            label.setFontScale(1f);
+            life = wordLifetime;
+        }
+
+        void merge(int points) {
+            totalPoints += points;
+            count++;
+            label.setText(reason + " +" + totalPoints + " x" + count);
+            life = wordLifetime;
+        }
+
+        void update() {
+            if(!Vars.state.isPaused()) life -= Time.delta;
+
+        }
+        //Funny
+        boolean isExpired() {
+            return life <= 0f;
         }
     }
 }
+

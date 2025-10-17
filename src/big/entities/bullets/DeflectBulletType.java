@@ -2,16 +2,10 @@ package big.entities.bullets;
 
 import arc.audio.Sound;
 import arc.math.Mathf;
-import arc.math.geom.Vec2;
-import arc.util.Time;
-import mindustry.entities.Damage;
-import mindustry.entities.Effect;
-import mindustry.entities.Lightning;
 import mindustry.entities.bullet.BasicBulletType;
 import mindustry.gen.Bullet;
 import mindustry.gen.Sounds;
-
-public class StandardBulletType extends BasicBulletType {
+public class DeflectBulletType extends BasicBulletType {
     //Chance for this bullet to deflect off an enemy. -1 to disable
     public float deflectChance = -1;
     //How much lifetime is added to the bullet after deflection
@@ -28,7 +22,7 @@ public class StandardBulletType extends BasicBulletType {
         this(speed, damage, "bullet");
     }
 
-    public StandardBulletType(){
+    public DeflectBulletType(){
         super(1f, 1f, "bullet");
     }
 

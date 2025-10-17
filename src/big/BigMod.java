@@ -32,7 +32,6 @@ public class BigMod extends Mod {
     @Override
     public void init() {
             ScoreBoardFragment scoreboard = new ScoreBoardFragment();
-            scoreboard.loadTiers();
         //TODO Move messages to bundles.
         Events.on(EventType.WorldLoadEvent.class, g -> {ui.hudGroup.addChild(scoreboard);});
             Events.on(EventType.UnitDestroyEvent.class, g -> {

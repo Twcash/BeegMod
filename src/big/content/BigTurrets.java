@@ -2,9 +2,8 @@ package big.content;
 
 import arc.graphics.Color;
 import arc.math.Interp;
-import arc.math.Mathf;
 import arc.util.Time;
-import big.entities.bullets.StandardBulletType;
+import big.entities.bullets.DeflectBulletType;
 import mindustry.content.Fx;
 import mindustry.content.Items;
 import mindustry.content.Liquids;
@@ -34,11 +33,11 @@ public class BigTurrets {
             requirements(Category.turret, with(Items.beryllium, 35, Items.silicon, 15));
             Effect shtFx = new MultiEffect(Fx.shootSmallColor, Fx.colorSpark);
             ammo(
-                    Items.beryllium, new StandardBulletType(5.5f, 25){{
+                    Items.beryllium, new DeflectBulletType(5.5f, 25){{
                         width = 4f;
                         hitSize = 4f;
                         height = 9f;
-                        deflectChance = 0.15f;
+                        deflectChance = 0.5f;
                         deflectLifetimeExtend = 10;
                         shootEffect = shtFx;
                         smokeEffect = Fx.shootSmallSmoke;
@@ -80,7 +79,7 @@ public class BigTurrets {
             requirements(Category.turret, with(Items.beryllium, 70, Items.silicon, 60, Items.graphite, 25));
             Effect shtFx = new MultiEffect(Fx.shootSmallColor, Fx.colorSpark);
             ammo(
-                    Items.beryllium, new StandardBulletType(6.5f, 45){{
+                    Items.beryllium, new DeflectBulletType(6.5f, 45){{
                         width = 6f;
                         hitSize = 4f;
                         height = 10f;
@@ -141,8 +140,6 @@ public class BigTurrets {
                         hitColor = backColor = trailColor = Pal.berylShot;
                         frontColor = Color.white;
                         trailWidth = 5f;
-                        status = BigStatusEffects.shattered;
-                        statusDuration = 10 * Time.toSeconds;
                         trailLength = 18;
                         trailInterp = Interp.sineOut;
                         trailEffect = BigFx.punctureTrail;
@@ -172,6 +169,91 @@ public class BigTurrets {
                         hitEffect = despawnEffect = Fx.hitBulletColor;
                         rangeChange = 48f;
                         buildingDamageMultiplier = 0.6f;
+                    }},
+                    Items.surgeAlloy, new DeflectBulletType(7, 150, "circle"){{
+                        width = height = 10;
+                        hitSize = 9;
+                        deflectLifetimeExtend = 50;
+                        deflectChance = 0.99f;
+                        pierceCap = 10;
+                        shrinkY = 0;
+                        shrinkX = 0;
+                        pierceBuilding = true;
+                        homingPower = 0.11f;
+                        rangeChange = 50;
+                        reloadMultiplier = 0.4f;
+                        shootEffect = shtFx;
+                        smokeEffect = Fx.shootSmokeSmite;
+                        loopSound = Sounds.techloop;
+                        loopSoundVolume = 0.05f;
+                        trailLength = 14;
+                        trailWidth = 5;
+                        trailInterp = Interp.pow2In;
+                    }},
+                    Items.carbide, new BasicBulletType(14f, 400, "aquarion-chunky-bullet"){{
+                        width = 26f;
+                        height = 35;
+                        hitSize = 7f;
+                        shootEffect = shtFx;
+                        smokeEffect = Fx.shootBigSmoke;
+                        ammoMultiplier = 3;
+                        reloadMultiplier = 0.6f;
+                        hitColor = backColor = trailColor = Color.valueOf("ab8ec5");
+                        frontColor = Color.white;
+                        trailWidth = 2.2f;
+                        trailLength = 11;
+                        trailEffect = Fx.disperseTrail;
+                        trailInterval = 2f;
+                        hitEffect = despawnEffect = Fx.hitBulletColor;
+                        rangeChange = 7f*8f;
+                        buildingDamageMultiplier = 0.3f;
+                        trailRotation = true;
+
+                        fragBullets = 3;
+                        fragRandomSpread = 0f;
+                        fragSpread = 90f;
+                        fragVelocityMin = 1f;
+
+                        fragBullet = new BasicBulletType(8.1f, 200){{
+                            lifetime = 14f;
+                            width = 15;
+                            height = 18f;
+                            hitSize = 7f;
+                            shootEffect = shtFx;
+                            ammoMultiplier = 1;
+                            reloadMultiplier = 1f;
+                            fragBullets = 2;
+                            fragRandomSpread = 0f;
+                            fragSpread = 180f;
+                            fragVelocityMin = 1f;
+                            pierceCap = 3;
+                            pierce = true;
+                            pierceBuilding = true;
+                            hitColor = backColor = trailColor = Color.valueOf("ab8ec5");
+                            frontColor = Color.white;
+                            trailWidth = 2.2f;
+                            trailLength = 11;
+                            hitEffect = despawnEffect = Fx.hitBulletColor;
+                            buildingDamageMultiplier = 0.2f;
+                            fragBullet = new BasicBulletType(8.1f, 100){{
+                                lifetime = 8f;
+                                width = 8;
+                                height = 10;
+                                hitSize = 5f;
+                                shootEffect = shtFx;
+                                ammoMultiplier = 1;
+                                reloadMultiplier = 1f;
+                                pierceCap = 2;
+                                pierce = true;
+                                pierceBuilding = true;
+                                hitColor = backColor = trailColor = Color.valueOf("ab8ec5");
+                                frontColor = Color.white;
+                                trailWidth = 1f;
+                                trailLength = 6;
+                                hitEffect = despawnEffect = Fx.hitBulletColor;
+                                buildingDamageMultiplier = 0.2f;
+                            }};
+                        }};
                     }}
             );
             coolantMultiplier = 10f;
