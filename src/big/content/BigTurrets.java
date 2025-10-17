@@ -1,6 +1,9 @@
 package big.content;
 
 import arc.graphics.Color;
+import arc.math.Interp;
+import arc.math.Mathf;
+import arc.util.Time;
 import big.entities.bullets.StandardBulletType;
 import mindustry.content.Fx;
 import mindustry.content.Items;
@@ -23,7 +26,7 @@ import static mindustry.type.ItemStack.with;
 
 public class BigTurrets {
     //Breach
-    public static Block pin, drill;
+    public static Block pin, drill, puncture;
     //Diffuse
     public static Block lob;
     public static void load(){
@@ -120,6 +123,89 @@ public class BigTurrets {
             coolant = consume(new ConsumeLiquid(Liquids.water, 8f / 60f));
             limitRange(12f);
         }};
+        puncture = new ItemTurret("puncture"){{
+            requirements(Category.turret, with(Items.beryllium, 350, Items.silicon, 400, Items.graphite, 300, Items.tungsten, 150));
+            Effect shtFx = new MultiEffect(Fx.shootBigColor, Fx.colorSparkBig);
+            ammoUseEffect = BigFx.casingWhite1;
+            ammo(
+                    Items.beryllium, new BasicBulletType(12f, 250, "big-chunky-bullet"){{
+                        width = 18f;
+                        hitSize = 4f;
+                        height = 25f;
+                        shootEffect = shtFx;
+                        smokeEffect = Fx.shootBigSmoke;
+                        ammoMultiplier = 1;
+                        pierceCap = 4;
+                        pierce = true;
+                        pierceBuilding = true;
+                        hitColor = backColor = trailColor = Pal.berylShot;
+                        frontColor = Color.white;
+                        trailWidth = 5f;
+                        status = BigStatusEffects.shattered;
+                        statusDuration = 10 * Time.toSeconds;
+                        trailLength = 18;
+                        trailInterp = Interp.sineOut;
+                        trailEffect = BigFx.punctureTrail;
+                        trailInterval = 3;
+                        hitEffect = despawnEffect = Fx.hitBulletColor;
+                        buildingDamageMultiplier = 0.5f;
+                    }},
+                    Items.tungsten, new BasicBulletType(11f, 300, "big-chunky-bullet"){{
+                        width = 22f;
+                        status = BigStatusEffects.shattered;
+                        statusDuration = 15 * Time.toSeconds;
+                        height = 30f;
+                        hitSize = 9f;
+                        shootEffect = shtFx;
+                        smokeEffect = Fx.shootBigSmoke;
+                        ammoMultiplier = 1.5f;
+                        reloadMultiplier = 1f;
+                        pierceCap = 6;
+                        pierce = true;
+                        trailEffect = BigFx.punctureTrail;
+                        trailInterval = 3;
+                        pierceBuilding = true;
+                        hitColor = backColor = trailColor = Pal.tungstenShot;
+                        frontColor = Color.white;
+                        trailWidth = 2.2f;
+                        trailLength = 20;
+                        hitEffect = despawnEffect = Fx.hitBulletColor;
+                        rangeChange = 48f;
+                        buildingDamageMultiplier = 0.6f;
+                    }}
+            );
+            coolantMultiplier = 10f;
+            shootSound = Sounds.shootBig;
+            targetUnderBlocks = false;
+            ammoPerShot = 5;
+            maxAmmo = 20;
+            drawer = new DrawTurret("reinforced-"){{
+                parts.addAll(new RegionPart("-side"){{
+                    mirror = true;
+                    progress = PartProgress.warmup.curve(Interp.pow2);
+                    moveX = -1;
+                    moveY = -1.5f;
+                    moveRot = 4;
+                    moves.add(new PartMove(PartProgress.recoil, 1.25f, -0.5f, -7));
+                }});
+            }};
+            shootY = -4;
+            outlineColor = Pal.darkOutline;
+            size = 4;
+            squareSprite = false;
+            envEnabled |= Env.space;
+            reload = 90;
+            recoil = 3f;
+            range = 200;
+            shootCone = 3f;
+            scaledHealth = 250;
+            rotateSpeed = 1.5f;
+            researchCostMultiplier = 0.15f;
+            buildTime = 60f * 6f;
+            coolant = consume(new ConsumeLiquid(Liquids.water, 40f / 60f));
+            limitRange(18f);
+        }};
+
         lob = new ItemTurret("lob"){{
             requirements(Category.turret, with(Items.beryllium, 25, Items.silicon, 40, Items.graphite, 20));
             ammo(

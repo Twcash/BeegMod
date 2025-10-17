@@ -5,6 +5,7 @@ import arc.Events;
 import arc.graphics.g2d.TextureRegion;
 import big.content.BigCrafters;
 import big.content.BigDefense;
+import big.content.BigStatusEffects;
 import big.content.BigTurrets;
 import big.ui.fragments.ScoreBoardFragment;
 import mindustry.Vars;
@@ -22,6 +23,7 @@ public class BigMod extends Mod {
 
     @Override
     public void loadContent() {
+        BigStatusEffects.load();
         BigCrafters.load();
         BigTurrets.load();
         BigDefense.load();
@@ -31,7 +33,7 @@ public class BigMod extends Mod {
     public void init() {
             ScoreBoardFragment scoreboard = new ScoreBoardFragment();
             scoreboard.loadTiers();
-
+        //TODO Move messages to bundles.
         Events.on(EventType.WorldLoadEvent.class, g -> {ui.hudGroup.addChild(scoreboard);});
             Events.on(EventType.UnitDestroyEvent.class, g -> {
                 if(g.unit != null && g.unit.team != Vars.player.team()){
