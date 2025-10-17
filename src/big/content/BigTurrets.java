@@ -8,6 +8,8 @@ import mindustry.content.Liquids;
 import mindustry.entities.Effect;
 import mindustry.entities.bullet.BasicBulletType;
 import mindustry.entities.effect.MultiEffect;
+import mindustry.entities.part.RegionPart;
+import mindustry.entities.pattern.ShootSpread;
 import mindustry.gen.Sounds;
 import mindustry.graphics.Pal;
 import mindustry.type.Category;
@@ -20,8 +22,10 @@ import mindustry.world.meta.Env;
 import static mindustry.type.ItemStack.with;
 
 public class BigTurrets {
+    //Breach
     public static Block pin, drill;
-
+    //Diffuse
+    public static Block lob;
     public static void load(){
         pin = new ItemTurret("pin"){{
             requirements(Category.turret, with(Items.beryllium, 35, Items.silicon, 15));
@@ -114,6 +118,78 @@ public class BigTurrets {
 
             coolant = consume(new ConsumeLiquid(Liquids.water, 8f / 60f));
             limitRange(12f);
+        }};
+        lob = new ItemTurret("lob"){{
+            requirements(Category.turret, with(Items.beryllium, 25, Items.silicon, 40, Items.graphite, 20));
+            ammo(
+                    Items.graphite, new BasicBulletType(8f, 30){{
+                        knockback = 4f;
+                        width = 5f;
+                        hitSize = 5f;
+                        height = 6f;
+                        shootEffect = Fx.shootSmallColor;
+                        smokeEffect = BigFx.shootSmokeSquareSmall;
+                        ammoMultiplier = 1;
+                        hitColor = backColor = trailColor = Color.valueOf("ea8878");
+                        frontColor = Pal.redLight;
+                        trailWidth = 1f;
+                        trailLength = 3;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        buildingDamageMultiplier = 0.2f;
+                    }},
+                    Items.silicon, new BasicBulletType(8f, 25){{
+                        knockback = 3f;
+                        width = 6;
+                        hitSize = 7f;
+                        height = 8;
+                        homingPower = 0.08f;
+                        shootEffect = Fx.shootSmallColor;
+                        smokeEffect = BigFx.shootSmokeSquareSmall;
+                        ammoMultiplier = 1;
+                        hitColor = backColor = trailColor = Pal.graphiteAmmoBack;
+                        frontColor = Pal.graphiteAmmoFront;
+                        trailWidth = 1.5f;
+                        trailLength = 3;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        buildingDamageMultiplier = 0.2f;
+                    }}
+            );
+            shoot = new ShootSpread(3, 4f);
+
+            coolantMultiplier = 15f;
+
+            inaccuracy = 2f;
+            velocityRnd = 0.2f;
+            shake = 0.5f;
+            ammoPerShot = 2;
+            maxAmmo = 30;
+            consumeAmmoOnce = true;
+            targetUnderBlocks = false;
+
+            drawer = new DrawTurret("reinforced-"){{
+                shootSound = Sounds.shootAlt;
+                parts.add(new RegionPart("-front"){{
+                    progress = PartProgress.warmup;
+                    moveRot = -10f;
+                    mirror = true;
+                    moves.add(new PartMove(PartProgress.recoil, 0f, 0.5f, 3f));
+                    heatColor = Color.red;
+                }});
+            }};
+            shootY = 2f;
+            outlineColor = Pal.darkOutline;
+            size = 1;
+            squareSprite = false;
+            envEnabled |= Env.space;
+            reload = 40f;
+            recoil = 1f;
+            range = 100;
+            shootCone = 35f;
+            scaledHealth = 60;
+            rotateSpeed = 4f;
+
+            coolant = consume(new ConsumeLiquid(Liquids.water, 4f / 60f));
+            limitRange(25f);
         }};
     }
 }
