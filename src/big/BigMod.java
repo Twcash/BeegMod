@@ -31,7 +31,8 @@ public class BigMod extends Mod {
     public void init() {
             ScoreBoardFragment scoreboard = new ScoreBoardFragment();
             scoreboard.loadTiers();
-            ui.hudGroup.addChild(scoreboard);
+
+        Events.on(EventType.WorldLoadEvent.class, g -> {ui.hudGroup.addChild(scoreboard);});
             Events.on(EventType.UnitDestroyEvent.class, g -> {
                 if(g.unit != null && g.unit.team != Vars.player.team()){
                     int value = (int)(g.unit.type().armor + g.unit.type.health);

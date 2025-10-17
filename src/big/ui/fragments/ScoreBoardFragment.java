@@ -17,10 +17,7 @@ import arc.scene.ui.layout.Table;
 import arc.scene.ui.layout.WidgetGroup;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
-import arc.util.Align;
-import arc.util.Log;
-import arc.util.Scaling;
-import arc.util.Tmp;
+import arc.util.*;
 import big.content.BigFx;
 import mindustry.Vars;
 import mindustry.game.EventType;
@@ -33,7 +30,10 @@ import static mindustry.Vars.ui;
 
 
 
-
+//Ultrakill styled score board UI.
+//TODO BIG code cleanup. Make the thing work off an actual update loop...
+//TODO Make points "streak based" and reset after a time with little point improvement.
+//TODO Actual visuals rather than a blank grey box with some words.
 public class ScoreBoardFragment extends Table {
 
     private final Table layout;
@@ -42,9 +42,13 @@ public class ScoreBoardFragment extends Table {
     private final Image background;
     private final Image scoreBar;
     private final Seq<TextureRegionDrawable> titleTiers = new Seq<>();
-    private final WidgetGroup popupLayer; // letters flying off
-    private final Table rowTable; // stacked rows
-
+    private final WidgetGroup popupLayer;
+    private final Table rowTable;
+    private TextureRegion one= new TextureRegion();
+    private TextureRegion two= new TextureRegion();
+    private TextureRegion three= new TextureRegion();
+    private TextureRegion four= new TextureRegion();
+    private TextureRegion five = new TextureRegion();
     private float rush = 0f;
     private int totalScore = 0;
     private int tier = 0;
@@ -53,14 +57,14 @@ public class ScoreBoardFragment extends Table {
     private final float height = 180f;
     private final float margin = 10f;
     public void loadTiers(){
-        String[] titles = {
-                "titlecard-lame","titlecard-ok","titlecard-interesting","titlecard-amazing","titlecard-big"
-        };
-        for(int i = 0; i < 4 ; i++){
-            TextureRegionDrawable tex = new TextureRegionDrawable();
-            tex = new TextureRegionDrawable(Core.atlas.find(titles[i]));
-            titleTiers.add(tex);
-        }
+        titleTiers.clear();
+        //TODO This needs a big cleanup
+        one = Core.atlas.find("big-titlecard-lame");
+        two = Core.atlas.find("big-titlecard-ok");
+        three = Core.atlas.find("big-titlecard-interesting");
+        four = Core.atlas.find("big-titlecard-amazing");
+        five = Core.atlas.find("big-titlecard-big");
+        titleTiers.addAll(new TextureRegionDrawable(one),new TextureRegionDrawable(two),new TextureRegionDrawable(three),new TextureRegionDrawable(four),new TextureRegionDrawable(five));
     }
 
     public ScoreBoardFragment() {
@@ -93,7 +97,7 @@ public class ScoreBoardFragment extends Table {
         layout.add(titleImage).size(width - 30f, 60f).padBottom(8f).row();
 
         // score bar
-        scoreBar = new Image(Core.atlas.find("scorebar-fill"));
+        scoreBar = new Image(Core.atlas.find("white"));
         scoreBar.setColor(Pal.accent);
         scoreBar.setOrigin(Align.left);
         scoreBar.setScale(0f);
@@ -113,36 +117,30 @@ public class ScoreBoardFragment extends Table {
 
     }
 
-    /** Add score event */
     public void addScore(String reason, int points) {
         totalScore += points;
         totalLabel.setText("" + totalScore);
 
-        // exponentially harder rush gain
         float baseGain = 0.15f;
         float power = 2f;
-        rush += baseGain * Mathf.pow(1f - rush, power);
-        rush = Mathf.clamp(rush, 0f, 1f);
+        rush += baseGain * Mathf.pow(1f - rush/2f, power);
+        rush = Mathf.clamp(rush, 0f, 1.1f);
 
         updateRushVisuals();
 
-        // create stacked row
         ScoreRow row = new ScoreRow(reason, points);
         rowTable.add(row.label).row();
 
-        // delay letters spawn for dramatic effect
         row.label.actions(
                 Actions.sequence(
-                        Actions.delay(0.8f),
+                        Actions.delay(1f),
                         Actions.run(() -> spawnLetters(String.valueOf(row.label.getText()))),
                         Actions.remove()
                 )
         );
     }
-
-    /** Update tier title & score bar based on current rush */
     private void updateRushVisuals() {
-        float[] rushThresholds = {0.2f, 0.4f, 0.6f, 0.8f, 1f};
+        float[] rushThresholds = {0.01f, 0.1f, 0.3f, 0.7f, 0.8f};
         int newTier = 0;
         for (int i = 0; i < rushThresholds.length; i++) {
             if (rush >= rushThresholds[i]) newTier = i;
@@ -155,6 +153,7 @@ public class ScoreBoardFragment extends Table {
             titleImage.clearActions();
             titleImage.actions(
                     Actions.sequence(
+                            Actions.rotateTo(12, 10),
                             Actions.scaleTo(1.6f, 1.6f, 0.15f, Interp.pow3Out),
                             Actions.scaleTo(1f, 1f, 0.3f, Interp.pow3In)
                     )
@@ -165,8 +164,7 @@ public class ScoreBoardFragment extends Table {
         scoreBar.clearActions();
         scoreBar.actions(Actions.scaleTo(rush, 1f, 0.25f, Interp.sineOut));
     }
-
-    /** Spawn letters flying individually with rotation, scale, and fade */
+    //Spawn individual letters from a word then fly off.
     private void spawnLetters(String text) {
         float startX = layout.x + 5f;
         float startY = layout.y - 25f;
@@ -204,23 +202,21 @@ public class ScoreBoardFragment extends Table {
             );
         }
     }
-
+    //VERY VERY BAD
+    //TODO Remove, move to update loop
     @Override
     public void act(float delta) {
         super.act(delta);
 
-        // decay rush over time
-        float decayRate = 0.2f;
+        float decayRate = 0.01f;
         rush = Mathf.lerpDelta(rush, 0f, decayRate);
 
-        // background pulses
         Color c = Color.valueOf("222222cc").cpy();
         c.shiftHue(rush * 50f);
         background.setColor(c);
         background.setScale(1f + rush * 0.08f);
     }
-
-    /** Internal row container */
+    //TODO. Impact visuals for bigger scores (possibly certain events have special fonts or colors?)
     private static class ScoreRow {
         Label label;
         public ScoreRow(String reason, int points) {
