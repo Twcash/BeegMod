@@ -26,25 +26,23 @@ public class ScoreBoardFragment extends Table {
     private final Image background;
     private final Image scoreBar;
 
-    private final Seq<TextureRegionDrawable> titleTiers = new Seq<>();
-    private final Seq<ReasonStack> reasonStacks = new Seq<>();
+    private final Seq<TextureRegionDrawable> titleTiers = new Seq<>();    private final Seq<ReasonStack> reasonStacks = new Seq<>();
+
 
     private final float width = 500f, height = 300f, margin = 0f;
 
-    private float rush = 0f;
-    private int totalScore = 0;
+    private float rush = 0f;private int totalScore = 0;
+
     private int tier = 0;
 
     private final float wordLifetime = 5 * 60f;
     private float titleAnimTime = 0f;
-
-    public ScoreBoardFragment() {
+    public ScoreBoardFragment(){
         loadTiers();
 
         setFillParent(true);
         visible(() -> Vars.ui.hudfrag.shown);
         touchable = Touchable.disabled;
-
         // Background
         background = new Image(Core.atlas.find("white"));
         background.setColor(Color.valueOf("222222cc"));

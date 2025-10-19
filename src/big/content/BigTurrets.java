@@ -4,6 +4,8 @@ import arc.graphics.Color;
 import arc.math.Interp;
 import arc.util.Time;
 import big.entities.bullets.DeflectBulletType;
+import big.entities.bullets.GambleBulletType;
+import big.world.meta.blocks.turrets.BigItemTurret;
 import mindustry.content.Fx;
 import mindustry.content.Items;
 import mindustry.content.Liquids;
@@ -288,12 +290,29 @@ public class BigTurrets {
             limitRange(18f);
         }};
 
-        lob = new ItemTurret("lob"){{
+        lob = new BigItemTurret("lob"){{
             requirements(Category.turret, with(Items.beryllium, 25, Items.silicon, 40, Items.graphite, 20));
             ammo(
-                    Items.graphite, new BasicBulletType(8f, 30){{
+                    Items.graphite, new GambleBulletType(new float[]{0.5f, 0.5f}, new BasicBulletType(8f, 30){{
                         knockback = 4f;
                         width = 5f;
+                        hitSize = 5f;
+                        height = 6f;
+                        collidesAir = false;
+                        shootEffect = Fx.shootSmallColor;
+                        smokeEffect = BigFx.shootSmokeSquareSmall;
+                        ammoMultiplier = 1;
+                        hitColor = backColor = trailColor = Color.valueOf("ea8878");
+                        frontColor = Pal.redLight;
+                        trailWidth = 1f;
+                        lifetime = 15;
+                        trailLength = 3;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        buildingDamageMultiplier = 0.2f;
+                    }},new BasicBulletType(8f, 30){{
+                        knockback = 4f;
+                        width = 5f;
+                        collidesGround = false;
                         hitSize = 5f;
                         height = 6f;
                         shootEffect = Fx.shootSmallColor;
@@ -302,11 +321,29 @@ public class BigTurrets {
                         hitColor = backColor = trailColor = Color.valueOf("ea8878");
                         frontColor = Pal.redLight;
                         trailWidth = 1f;
+                        lifetime = 15;
                         trailLength = 3;
                         hitEffect = despawnEffect = Fx.hitSquaresColor;
                         buildingDamageMultiplier = 0.2f;
-                    }},
-                    Items.silicon, new BasicBulletType(8f, 25){{
+                    }}),
+                    Items.silicon, new GambleBulletType(new float[]{0.5f, 0.5f},
+                        new BasicBulletType(8f, 25){{
+                            knockback = 3f;
+                            width = 6;
+                            hitSize = 7f;
+                            height = 8;
+                            homingPower = 0.08f;
+                            shootEffect = Fx.shootSmallColor;
+                            smokeEffect = BigFx.shootSmokeSquareSmall;
+                            ammoMultiplier = 1;
+                            lifetime = 18;
+                            hitColor = backColor = trailColor = Pal.graphiteAmmoBack;
+                            frontColor = Pal.graphiteAmmoFront;
+                            trailWidth = 1.5f;
+                            trailLength = 3;
+                            hitEffect = despawnEffect = Fx.hitSquaresColor;
+                            buildingDamageMultiplier = 0.2f;
+                    }},new BasicBulletType(8f, 25){{
                         knockback = 3f;
                         width = 6;
                         hitSize = 7f;
@@ -319,9 +356,10 @@ public class BigTurrets {
                         frontColor = Pal.graphiteAmmoFront;
                         trailWidth = 1.5f;
                         trailLength = 3;
+                        lifetime = 18;
                         hitEffect = despawnEffect = Fx.hitSquaresColor;
                         buildingDamageMultiplier = 0.2f;
-                    }}
+                    }})
             );
             shoot = new ShootSpread(3, 4f);
 
@@ -358,7 +396,7 @@ public class BigTurrets {
             rotateSpeed = 4f;
 
             coolant = consume(new ConsumeLiquid(Liquids.water, 4f / 60f));
-            limitRange(25f);
+            limitRange(2f);
         }};
     }
 }
