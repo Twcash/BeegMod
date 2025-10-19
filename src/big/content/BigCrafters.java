@@ -16,7 +16,7 @@ import mindustry.world.meta.Env;
 import static mindustry.type.ItemStack.with;
 
 public class BigCrafters {
-    public static Block tinySiliconArcFurnace;
+    public static Block tinySiliconArcFurnace, smallSiliconArcFurnace;
     public static void load(){
         //Blocks smaller than the original will blatantly be worse versions of the original
         //More fun stuff can happen when they get bigger than the original (Payload crafting?)
@@ -46,6 +46,33 @@ public class BigCrafters {
             consumeItems(with(Items.sand, 3));
             outputItem = new ItemStack(Items.silicon, 2);
             consumePower(1.5f);
+        }};
+        smallSiliconArcFurnace = new GenericCrafter("small-silicon-arc-furnace"){{
+            requirements(Category.crafting, with(Items.beryllium, 50, Items.graphite, 25));
+            size = 2;
+            squareSprite = false;
+            craftEffect = Fx.mineSmall;
+            craftTime = 90;
+            hasPower = true;
+            hasLiquids = false;
+            envEnabled |= Env.space | Env.underwater;
+            envDisabled = Env.none;
+            itemCapacity = 30;
+            drawer = new DrawMulti(new DrawRegion("-bottom"), new DrawArcSmelt(){{
+                circleStroke = 1f;
+                particleLen = 2f;
+                circleSpace = 1.5f;
+                flameRad = 1f;
+                flameRadiusMag = 0.3f;
+                particleRad = 5;
+            }}, new DrawDefault());
+            fogRadius = 3;
+            researchCost = with(Items.beryllium, 15, Items.graphite, 15);
+            ambientSound = Sounds.smelter;
+            ambientSoundVolume = 0.07f;
+            consumeItems(with(Items.sand, 4, Items.graphite, 2));
+            outputItem = new ItemStack(Items.silicon, 4);
+            consumePower(2f);
         }};
     }
 }
