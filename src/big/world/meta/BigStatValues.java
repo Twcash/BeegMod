@@ -1,7 +1,6 @@
 package big.world.meta;
 
 import arc.Core;
-import arc.graphics.Color;
 import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.scene.ui.layout.Cell;
@@ -29,14 +28,15 @@ import static mindustry.world.meta.StatValues.withTooltip;
 
 public class BigStatValues {
 
-    public static <T extends UnlockableContent> StatValue ammo(ObjectMap<T, BulletType> map){
+    public static <T extends UnlockableContent> StatValue ammo(ObjectMap<T, BulletType> map) {
         return ammo(map, false, false);
     }
 
-    public static <T extends UnlockableContent> StatValue ammo(ObjectMap<T, BulletType> map, boolean showUnit){
+    public static <T extends UnlockableContent> StatValue ammo(ObjectMap<T, BulletType> map, boolean showUnit) {
         return ammo(map, false, showUnit);
     }
-    public static <T extends UnlockableContent> StatValue ammo(ObjectMap<T, BulletType> map, boolean nested, boolean showUnit){
+
+    public static <T extends UnlockableContent> StatValue ammo(ObjectMap<T, BulletType> map, boolean nested, boolean showUnit) {
         return table -> {
 
             table.row();
@@ -44,12 +44,12 @@ public class BigStatValues {
             var orderedKeys = map.keys().toSeq();
             orderedKeys.sort();
 
-            for(T t : orderedKeys){
+            for (T t : orderedKeys) {
                 boolean compact = t instanceof UnitType && !showUnit || nested;
 
                 BulletType type = map.get(t);
 
-                if(type.spawnUnit != null && type.spawnUnit.weapons.size > 0){
+                if (type.spawnUnit != null && type.spawnUnit.weapons.size > 0) {
                     ammo(ObjectMap.of(t, type.spawnUnit.weapons.first().bullet), nested, false).display(table);
                     continue;
                 }
@@ -57,13 +57,13 @@ public class BigStatValues {
                 table.table(Styles.grayPanel, bt -> {
                     bt.left().top().defaults().padRight(3).left();
                     //no point in displaying unit icon twice
-                    if(!compact && !(t instanceof Turret)){
+                    if (!compact && !(t instanceof Turret)) {
                         bt.table(title -> {
                             title.image(icon(t)).size(3 * 8).padRight(4).right().scaling(Scaling.fit).top().with(i -> withTooltip(i, t, false));
 
                             title.add(t.localizedName).padRight(10).left().top();
 
-                            if(type.displayAmmoMultiplier && type.statLiquidConsumed > 0f){
+                            if (type.displayAmmoMultiplier && type.statLiquidConsumed > 0f) {
                                 title.add("[stat]" + fixValue(type.statLiquidConsumed / type.ammoMultiplier * 60f) + " [lightgray]" + StatUnit.perSecond.localized());
                             }
                         });
@@ -80,15 +80,15 @@ public class BigStatValues {
                     if (type.rangeChange != 0 && !compact) {
                         sep(bt, Core.bundle.format("bullet.range", ammoStat(type.rangeChange / tilesize)));
                     }
-                    if(type instanceof GambleBulletType gamble){
+                    if (type instanceof GambleBulletType gamble) {
                         bt.row();
 
                         Table gc = new Table();
-                        for(int i = 0; i < gamble.bullets.length; i++){
+                        for (int i = 0; i < gamble.bullets.length; i++) {
                             BulletType gb = gamble.bullets[i];
                             float bias = gamble.bias.length > i ? gamble.bias[i] : 1f;
                             float total = 0f;
-                            for(float b : gamble.bias) total += b;
+                            for (float b : gamble.bias) total += b;
                             float chance = (bias / total) * 100f;
 
                             gc.table(Styles.grayPanel, gbt -> {
@@ -96,7 +96,7 @@ public class BigStatValues {
 
                                 gbt.table(title -> {
                                     title.add(Core.bundle.format("bullet.random",
-                                                    Strings.autoFixed(chance, 1)+"%"));
+                                            Strings.autoFixed(chance, 1) + "%"));
                                 });
                                 gbt.row();
 
@@ -126,28 +126,21 @@ public class BigStatValues {
                         });
                         bt.row();
                         bt.add(gambleColl);
-                    } else if(type instanceof SeqBulletType seq){
+                    } else if (type instanceof SeqBulletType seq) {
                         bt.row();
                         Table bc = new Table();
                         bc.table(Styles.grayPanel, gbt -> {
-                                    gbt.table(title -> {
-                                        title.add(Core.bundle.format("bullet.sequence")).left();
-                                    }).growX().left();
-                        for(int i = 0; i < seq.bullets.length; i++){
-                            BulletType sb = seq.bullets[i];
-
-                            int finalI = i;
-
-
+                            gbt.table(title -> {
+                                title.add(Core.bundle.format("bullet.sequence")).left();
+                            }).growX().left();
+                            for (int i = 0; i < seq.bullets.length; i++) {
+                                BulletType sb = seq.bullets[i];
                                 gbt.row();
-
                                 Table sub = new Table();
                                 ammo(ObjectMap.of(t, sb), true, false).display(sub);
-
-
-                            gbt.add(sub).growX().padTop(3);
-                            bc.row();
-                        }
+                                gbt.add(sub).growX().padTop(3);
+                                bc.row();
+                            }
                         }).padTop(3).growX().margin(5);
                         bt.add(bc).growX();
                     } else {
@@ -164,7 +157,6 @@ public class BigStatValues {
                         }
 
 
-
                         if (type.shieldDamageMultiplier != 1) {
                             sep(bt, Core.bundle.format("bullet.shielddamage", ammoStat((int) (type.shieldDamageMultiplier * 100 - 100))));
                         }
@@ -172,7 +164,6 @@ public class BigStatValues {
                         if (type.splashDamage > 0) {
                             sep(bt, Core.bundle.format("bullet.splashdamage", (int) type.splashDamage, Strings.fixed(type.splashDamageRadius / tilesize, 1)));
                         }
-
 
 
                         if (type.knockback > 0) {
@@ -271,17 +262,19 @@ public class BigStatValues {
             }
         };
     }
+
     //Simply copied vanilla code
-    private static TextureRegion icon(UnlockableContent t){
+    private static TextureRegion icon(UnlockableContent t) {
         return t.uiIcon;
     }
-    private static Cell<?> sep(Table table, String text){
+
+    private static Cell<?> sep(Table table, String text) {
         table.row();
         return table.add(text);
     }
 
     //for AmmoListValue
-    private static String ammoStat(float val){
+    private static String ammoStat(float val) {
         return (val > 0 ? "[stat]+" : "[negstat]") + Strings.autoFixed(val, 1);
     }
 }
