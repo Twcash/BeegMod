@@ -5,11 +5,13 @@ import arc.util.Nullable;
 import big.world.meta.blocks.turrets.BigItemTurret;
 import mindustry.entities.Mover;
 import mindustry.entities.bullet.BulletType;
+import mindustry.entities.units.WeaponMount;
 import mindustry.game.Team;
 import mindustry.gen.Bullet;
 import mindustry.gen.Entityc;
 import mindustry.gen.Teamc;
 import mindustry.gen.Unit;
+import mindustry.type.Weapon;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.Turret;
 //TODO somehow this is screwing with targetting?????
@@ -34,13 +36,12 @@ public class SequenceBulletType extends BulletType {
         }
         return max;
     }
-    //TODO This is very hacky. Cleanup will be needed
     public BulletType pickBullet(Entityc owner){
         if(owner instanceof ItemTurret.ItemTurretBuild tur) {
             if(tur.block instanceof BigItemTurret big)
                 return bullets[(tur.totalShots/big.shoot.shots) % bullets.length];
-        }else if(owner instanceof Unit u){
-            throw new IllegalArgumentException("Sorry, no unit support yet :p.");
+        }else if(owner instanceof WeaponMount u){
+            return bullets[(u.totalShots/u.weapon.shoot.shots) % bullets.length];
         }
         throw new IllegalArgumentException("something very bad happened");
     };
