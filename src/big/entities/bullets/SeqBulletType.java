@@ -1,6 +1,5 @@
 package big.entities.bullets;
 
-import arc.math.Mathf;
 import arc.util.Nullable;
 import big.world.meta.blocks.turrets.BigItemTurret;
 import mindustry.entities.Mover;
@@ -10,17 +9,16 @@ import mindustry.game.Team;
 import mindustry.gen.Bullet;
 import mindustry.gen.Entityc;
 import mindustry.gen.Teamc;
-import mindustry.gen.Unit;
-import mindustry.type.Weapon;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
-import mindustry.world.blocks.defense.turrets.Turret;
+
 //TODO somehow this is screwing with targetting?????
-public class SequenceBulletType extends BulletType {
+public class SeqBulletType extends BulletType {
     public BulletType[] bullets;
 
-    public SequenceBulletType(BulletType... bullets){
+    public SeqBulletType(BulletType... bullets) {
         this.bullets = bullets;
     }
+
     @Override
     protected float calculateRange() {
         float max = 0f;
@@ -36,17 +34,19 @@ public class SequenceBulletType extends BulletType {
         }
         return max;
     }
-    public BulletType pickBullet(Entityc owner){
-        if(owner instanceof ItemTurret.ItemTurretBuild tur) {
-            if(tur.block instanceof BigItemTurret big)
-                return bullets[(tur.totalShots/big.shoot.shots) % bullets.length];
-        }else if(owner instanceof WeaponMount u){
-            return bullets[(u.totalShots/u.weapon.shoot.shots) % bullets.length];
+
+    public BulletType pickBullet(Entityc owner) {
+        if (owner instanceof ItemTurret.ItemTurretBuild tur) {
+            if (tur.block instanceof BigItemTurret big)
+                return bullets[(tur.totalShots / big.shoot.shots) % bullets.length];
+        } else if (owner instanceof WeaponMount u) {
+            return bullets[(u.totalShots / u.weapon.shoot.shots) % bullets.length];
         }
         throw new IllegalArgumentException("something very bad happened");
-    };
+    }
+
     @Override
-    public @Nullable Bullet create(@Nullable Entityc owner, @Nullable Entityc shooter, Team team, float x, float y, float angle, float damage, float velocityScl, float lifetimeScl, Object data, @Nullable Mover mover, float aimX, float aimY, @Nullable Teamc target){
+    public @Nullable Bullet create(@Nullable Entityc owner, @Nullable Entityc shooter, Team team, float x, float y, float angle, float damage, float velocityScl, float lifetimeScl, Object data, @Nullable Mover mover, float aimX, float aimY, @Nullable Teamc target) {
         angle += angleOffset;
         Bullet last = null;
         BulletType chosen = pickBullet(owner);

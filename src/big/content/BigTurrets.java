@@ -5,7 +5,7 @@ import arc.math.Interp;
 import arc.util.Time;
 import big.entities.bullets.DeflectBulletType;
 import big.entities.bullets.GambleBulletType;
-import big.entities.bullets.SequenceBulletType;
+import big.entities.bullets.SeqBulletType;
 import big.world.meta.blocks.turrets.BigItemTurret;
 import mindustry.content.Fx;
 import mindustry.content.Items;
@@ -402,7 +402,7 @@ public class BigTurrets {
             requirements(Category.turret, with(Items.beryllium, 60, Items.silicon, 90, Items.tungsten, 15));
 
             ammo(
-                    Items.graphite, new SequenceBulletType(new BasicBulletType(8f, 30){{
+                    Items.graphite, new SeqBulletType(new BasicBulletType(8f, 30){{
                         knockback = 2f;
                         width = 8f;
                         hitSize = 5f;
@@ -417,7 +417,7 @@ public class BigTurrets {
                         trailLength = 3;
                         hitEffect = despawnEffect = Fx.hitSquaresColor;
                         buildingDamageMultiplier = 0.2f;
-                    }},new BasicBulletType(4.5f, 60){{
+                    }}, new BasicBulletType(4.5f, 60){{
                         knockback = 8f;
                         width = 15f;
                         hitSize = 7f;
