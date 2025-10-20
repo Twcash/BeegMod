@@ -5,6 +5,7 @@ import arc.math.Interp;
 import arc.util.Time;
 import big.entities.bullets.DeflectBulletType;
 import big.entities.bullets.GambleBulletType;
+import big.entities.bullets.SequenceBulletType;
 import big.world.meta.blocks.turrets.BigItemTurret;
 import mindustry.content.Fx;
 import mindustry.content.Items;
@@ -29,7 +30,7 @@ public class BigTurrets {
     //Breach
     public static Block pin, drill, puncture;
     //Diffuse
-    public static Block lob;
+    public static Block lob, cast;
     public static void load(){
         pin = new ItemTurret("pin"){{
             requirements(Category.turret, with(Items.beryllium, 35, Items.silicon, 15));
@@ -391,12 +392,83 @@ public class BigTurrets {
             reload = 40f;
             recoil = 1f;
             range = 100;
-            shootCone = 35f;
             scaledHealth = 60;
             rotateSpeed = 4f;
 
             coolant = consume(new ConsumeLiquid(Liquids.water, 4f / 60f));
-            limitRange(2f);
+            limitRange(20f);
+        }};
+        cast = new BigItemTurret("cast"){{
+            requirements(Category.turret, with(Items.beryllium, 60, Items.silicon, 90, Items.tungsten, 15));
+
+            ammo(
+                    Items.graphite, new SequenceBulletType(new BasicBulletType(8f, 30){{
+                        knockback = 2f;
+                        width = 8f;
+                        hitSize = 5f;
+                        height = 8f;
+                        shootEffect = Fx.shootBigColor;
+                        smokeEffect = Fx.shootSmokeSquareSparse;
+                        ammoMultiplier = 1;
+                        hitColor = backColor = trailColor = Color.valueOf("ea8878");
+                        frontColor = Pal.redLight;
+                        trailWidth = 3f;
+                        lifetime = 25;
+                        trailLength = 3;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        buildingDamageMultiplier = 0.2f;
+                    }},new BasicBulletType(4.5f, 60){{
+                        knockback = 8f;
+                        width = 15f;
+                        hitSize = 7f;
+                        height = 12f;
+                        collidesAir = false;
+                        shootEffect = Fx.shootBigColor;
+                        smokeEffect = Fx.shootSmokeSquareSparse;
+                        ammoMultiplier = 1;
+                        hitColor = backColor = trailColor = Color.valueOf("ea8878");
+                        trailEffect = Fx.missileTrail;
+                        trailInterval = 8;
+                        frontColor = Color.white;
+                        trailWidth = 3.5f;
+                        lifetime = 50;
+                        trailLength = 5;
+                        hitEffect = despawnEffect = Fx.hitSquaresColor;
+                        buildingDamageMultiplier = 0.2f;
+                    }})
+            );
+            coolantMultiplier = 15f;
+
+            inaccuracy = 2f;
+            velocityRnd = 0.2f;
+            shake = 0.5f;
+            ammoPerShot = 3;
+            maxAmmo = 45;
+            consumeAmmoOnce = true;
+            targetUnderBlocks = false;
+            drawer = new DrawTurret("reinforced-"){{
+                shootSound = Sounds.shootAltLong;
+                parts.add(new RegionPart("-front"){{
+                    progress = PartProgress.warmup;
+                    moveRot = -10f;
+                    mirror = true;
+                    moves.add(new PartMove(PartProgress.recoil, 1f, 1.5f, 5f));
+                    heatColor = Color.red;
+                }});
+            }};
+            shoot = new ShootSpread(6, 8f);
+            shootY = 2f;
+            outlineColor = Pal.darkOutline;
+            size = 2;
+            squareSprite = false;
+            envEnabled |= Env.space;
+            reload = 45f;
+            recoil = 2f;
+            range = 150;
+            scaledHealth = 90;
+            rotateSpeed = 3f;
+            coolant = consume(new ConsumeLiquid(Liquids.water, 4f / 60f));
+            limitRange(25f);
         }};
     }
 }

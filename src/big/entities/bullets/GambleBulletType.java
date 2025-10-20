@@ -12,54 +12,63 @@ import mindustry.gen.Teamc;
 
 import java.util.Arrays;
 //LETS GO GAMBLING
+//TODO somehow this is screwing with targetting?????
 public class GambleBulletType extends BasicBulletType {
     public BulletType[] bullets = {};
     public float[] bias = {};
 
-    public GambleBulletType(BulletType... bullets){
+    public GambleBulletType(BulletType... bullets) {
         this.bullets = bullets;
         this.bias = new float[bullets.length];
         Arrays.fill(this.bias, 1f);
     }
 
-    public GambleBulletType(float[] bias, BulletType... bullets){
-        if(bias.length != bullets.length) throw new IllegalArgumentException("Bias length must match bullets length.");
+    public GambleBulletType(float[] bias, BulletType... bullets) {
+        if (bias.length != bullets.length) throw new IllegalArgumentException("Bias length must match bullets length.");
         this.bullets = bullets;
         this.bias = bias;
     }
 
 
-    public GambleBulletType(){
+    public GambleBulletType() {
     }
-    //This doesn't work. using pickBullet() won't return the same bullet either.
+
     @Override
-    public float estimateDPS(){
+    public float estimateDPS() {
         float sum = 0f;
-        for(var b : bullets){
+        for (var b : bullets) {
             sum += b.estimateDPS();
         }
         return sum / Math.max(bullets.length, 1);
     }
-    //LimitRange() does not work with this class. Driving me insane. Tweak lifetime instead...
+
     @Override
-    protected float calculateRange(){
+    protected float calculateRange() {
         float max = 0f;
-        for(var b : bullets){
-            max = Math.max(max, b.range);
+        for (BulletType b : bullets) {
+            try {
+                java.lang.reflect.Method method = BulletType.class.getDeclaredMethod("calculateRange");
+                method.setAccessible(true);
+                float range = (float) method.invoke(b);
+                max = Math.max(max, range);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return max;
     }
-    private BulletType pickBullet(){
-        if(bullets.length == 0) return this; // fallback
+
+    private BulletType pickBullet() {
+        if (bullets.length == 0) return this; // fallback
 
         float total = 0f;
-        for(float f : bias) total += f;
+        for (float f : bias) total += f;
         float rand = Mathf.random(total);
 
         float cumulative = 0f;
-        for(int i = 0; i < bullets.length; i++){
+        for (int i = 0; i < bullets.length; i++) {
             cumulative += bias[i];
-            if(rand <= cumulative){
+            if (rand <= cumulative) {
                 return bullets[i];
             }
         }
@@ -70,15 +79,15 @@ public class GambleBulletType extends BasicBulletType {
     public @Nullable Bullet create(
             @Nullable Entityc owner, @Nullable Entityc shooter, Team team, float x, float y, float angle, float damage, float velocityScl,
             float lifetimeScl, Object data, @Nullable Mover mover, float aimX, float aimY, @Nullable Teamc target
-    ){
+    ) {
         angle += angleOffset;
-
         Bullet last = null;
 
-            BulletType chosen = pickBullet();
-            last = chosen.create(owner, shooter, team, x, y, angle, damage, velocityScl, lifetimeScl, data, mover, aimX, aimY, target);
+        BulletType chosen = pickBullet();
+        speed = chosen.speed;//Surely there will be no repercussions for this.
+
+        last = chosen.create(owner, shooter, team, x, y, angle, damage, velocityScl, lifetimeScl, data, mover, aimX, aimY, target);
 
         return last;
     }
 }
-

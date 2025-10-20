@@ -14,5 +14,4 @@ public class BigItemTurret extends ItemTurret {
         stats.remove(Stat.ammo);
         stats.add(Stat.ammo, BigStatValues.ammo(ammoTypes));
     }
-
 }
