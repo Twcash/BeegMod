@@ -11,6 +11,7 @@ import arc.struct.ObjectMap;
 import arc.util.Scaling;
 import arc.util.Strings;
 import big.entities.bullets.GambleBulletType;
+import big.entities.bullets.SeqBulletType;
 import mindustry.content.StatusEffects;
 import mindustry.ctype.UnlockableContent;
 import mindustry.entities.bullet.BulletType;
@@ -68,6 +69,17 @@ public class BigStatValues {
                         });
                         bt.row();
                     }
+                    if (type.statLiquidConsumed <= 0f && !compact && !Mathf.equal(type.ammoMultiplier, 1f) && type.displayAmmoMultiplier && (!(t instanceof Turret turret) || turret.displayAmmoMultiplier)) {
+                        sep(bt, Core.bundle.format("bullet.multiplier", (int) type.ammoMultiplier));
+                    }
+
+                    if (!compact && !Mathf.equal(type.reloadMultiplier, 1f)) {
+                        int val = (int) (type.reloadMultiplier * 100 - 100);
+                        sep(bt, Core.bundle.format("bullet.reload", ammoStat(val)));
+                    }
+                    if (type.rangeChange != 0 && !compact) {
+                        sep(bt, Core.bundle.format("bullet.range", ammoStat(type.rangeChange / tilesize)));
+                    }
                     if(type instanceof GambleBulletType gamble){
                         bt.row();
 
@@ -84,8 +96,7 @@ public class BigStatValues {
 
                                 gbt.table(title -> {
                                     title.add(Core.bundle.format("bullet.random",
-                                                    Strings.autoFixed(chance, 1)+"%"))
-                                            .color(Color.lightGray);
+                                                    Strings.autoFixed(chance, 1)+"%"));
                                 });
                                 gbt.row();
 
@@ -115,6 +126,30 @@ public class BigStatValues {
                         });
                         bt.row();
                         bt.add(gambleColl);
+                    } else if(type instanceof SeqBulletType seq){
+                        bt.row();
+                        Table bc = new Table();
+                        bc.table(Styles.grayPanel, gbt -> {
+                                    gbt.table(title -> {
+                                        title.add(Core.bundle.format("bullet.sequence")).left();
+                                    }).growX().left();
+                        for(int i = 0; i < seq.bullets.length; i++){
+                            BulletType sb = seq.bullets[i];
+
+                            int finalI = i;
+
+
+                                gbt.row();
+
+                                Table sub = new Table();
+                                ammo(ObjectMap.of(t, sb), true, false).display(sub);
+
+
+                            gbt.add(sub).growX().padTop(3);
+                            bc.row();
+                        }
+                        }).padTop(3).growX().margin(5);
+                        bt.add(bc).growX();
                     } else {
                         if (type.damage > 0 && (type.collides || type.splashDamage <= 0)) {
                             if (type.continuousDamage() > 0) {
@@ -128,9 +163,7 @@ public class BigStatValues {
                             sep(bt, Core.bundle.format("bullet.buildingdamage", ammoStat((int) (type.buildingDamageMultiplier * 100 - 100))));
                         }
 
-                        if (type.rangeChange != 0 && !compact) {
-                            sep(bt, Core.bundle.format("bullet.range", ammoStat(type.rangeChange / tilesize)));
-                        }
+
 
                         if (type.shieldDamageMultiplier != 1) {
                             sep(bt, Core.bundle.format("bullet.shielddamage", ammoStat((int) (type.shieldDamageMultiplier * 100 - 100))));
@@ -140,14 +173,7 @@ public class BigStatValues {
                             sep(bt, Core.bundle.format("bullet.splashdamage", (int) type.splashDamage, Strings.fixed(type.splashDamageRadius / tilesize, 1)));
                         }
 
-                        if (type.statLiquidConsumed <= 0f && !compact && !Mathf.equal(type.ammoMultiplier, 1f) && type.displayAmmoMultiplier && (!(t instanceof Turret turret) || turret.displayAmmoMultiplier)) {
-                            sep(bt, Core.bundle.format("bullet.multiplier", (int) type.ammoMultiplier));
-                        }
 
-                        if (!compact && !Mathf.equal(type.reloadMultiplier, 1f)) {
-                            int val = (int) (type.reloadMultiplier * 100 - 100);
-                            sep(bt, Core.bundle.format("bullet.reload", ammoStat(val)));
-                        }
 
                         if (type.knockback > 0) {
                             sep(bt, Core.bundle.format("bullet.knockback", Strings.autoFixed(type.knockback, 2)));
