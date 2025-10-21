@@ -2,6 +2,7 @@ package big.entities.bullets;
 
 import arc.util.Nullable;
 import big.world.meta.blocks.turrets.BigItemTurret;
+import big.world.meta.blocks.turrets.BigPayloadAmmoTurret;
 import mindustry.entities.Mover;
 import mindustry.entities.bullet.BulletType;
 import mindustry.entities.units.WeaponMount;
@@ -9,6 +10,7 @@ import mindustry.game.Team;
 import mindustry.gen.Bullet;
 import mindustry.gen.Entityc;
 import mindustry.gen.Teamc;
+import mindustry.world.Block;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
 
 //TODO somehow this is screwing with targetting?????
@@ -37,8 +39,8 @@ public class SeqBulletType extends BulletType {
 
     public BulletType pickBullet(Entityc owner) {
         if (owner instanceof ItemTurret.ItemTurretBuild tur) {
-            if (tur.block instanceof BigItemTurret big)
-                return bullets[(tur.totalShots / big.shoot.shots) % bullets.length];
+            if (tur.block instanceof BigItemTurret big) return bullets[(tur.totalShots / big.shoot.shots) % bullets.length];
+            if (tur.block instanceof BigPayloadAmmoTurret big) return bullets[(tur.totalShots / big.shoot.shots) % bullets.length];
         } else if (owner instanceof WeaponMount u) {
             return bullets[(u.totalShots / u.weapon.shoot.shots) % bullets.length];
         }

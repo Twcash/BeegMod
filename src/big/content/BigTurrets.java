@@ -7,6 +7,8 @@ import big.entities.bullets.DeflectBulletType;
 import big.entities.bullets.GambleBulletType;
 import big.entities.bullets.SeqBulletType;
 import big.world.meta.blocks.turrets.BigItemTurret;
+import big.world.meta.blocks.turrets.BigPayloadAmmoTurret;
+import mindustry.content.Blocks;
 import mindustry.content.Fx;
 import mindustry.content.Items;
 import mindustry.content.Liquids;
@@ -28,11 +30,11 @@ import static mindustry.type.ItemStack.with;
 
 public class BigTurrets {
     //Breach
-    public static Block pin, drill, puncture;
+    public static Block pin, drill, puncture, rupture;
     //Diffuse
     public static Block lob, cast;
     public static void load(){
-        pin = new ItemTurret("pin"){{
+        pin = new BigItemTurret("pin"){{
             requirements(Category.turret, with(Items.beryllium, 35, Items.silicon, 15));
             Effect shtFx = new MultiEffect(Fx.shootSmallColor, Fx.colorSpark);
             ammo(
@@ -290,7 +292,87 @@ public class BigTurrets {
             coolant = consume(new ConsumeLiquid(Liquids.water, 40f / 60f));
             limitRange(18f);
         }};
-
+        rupture = new BigPayloadAmmoTurret("rupture"){{
+            requirements(Category.turret, with(Items.beryllium, 900, Items.silicon, 600, Items.tungsten, 300, Items.surgeAlloy, 150));
+            ammo(
+                    Blocks.berylliumWall,  new BasicBulletType(7.5f, 85){{
+                        width = 12f;
+                        hitSize = 7f;
+                        height = 20f;
+                        shootEffect = Fx.none;
+                        smokeEffect = Fx.shootBigSmoke;
+                        ammoMultiplier = 1;
+                        pierceCap = 2;
+                        pierce = true;
+                        pierceBuilding = true;
+                        hitColor = backColor = trailColor = Pal.berylShot;
+                        frontColor = Color.white;
+                        trailWidth = 2.1f;
+                        trailLength = 10;
+                        hitEffect = despawnEffect = Fx.hitBulletColor;
+                        buildingDamageMultiplier = 0.3f;
+                    }},
+                    pin,  new BasicBulletType(7.5f, 85){{
+                        width = 12f;
+                        hitSize = 7f;
+                        height = 20f;
+                        shootEffect = Fx.none;
+                        smokeEffect = Fx.shootBigSmoke;
+                        ammoMultiplier = 1;
+                        pierceCap = 2;
+                        pierce = true;
+                        pierceBuilding = true;
+                        hitColor = backColor = trailColor = Pal.berylShot;
+                        frontColor = Color.white;
+                        trailWidth = 2.1f;
+                        trailLength = 10;
+                        hitEffect = despawnEffect = Fx.hitBulletColor;
+                        buildingDamageMultiplier = 0.3f;
+                    }}
+            );
+            coolantMultiplier = 10f;
+            shootSound = Sounds.shootBig;
+            targetUnderBlocks = false;
+            ammoPerShot = 1;
+            maxAmmo = 10;
+            drawer = new DrawTurret("reinforced-"){{
+                parts.addAll(new RegionPart("-side"){{
+                    moveX = 1;
+                    moveY = -1.5f;
+                    moveRot = -8f;
+                    mirror = true;
+                    progress = PartProgress.warmup;
+                    moves.add(new PartMove(PartProgress.recoil, 0, -2, -6));
+                }}, new RegionPart("-bar1"){{
+                    moveX = 3;
+                    mirror = true;
+                    progress = PartProgress.recoil.delay(0).curve(Interp.pow2In);
+                }}, new RegionPart("-bar2"){{
+                    moveX = 3.5f;
+                    mirror = true;
+                    x = -0.2f;
+                    progress = PartProgress.recoil.delay(0.2f).curve(Interp.pow2In);
+                }}, new RegionPart("-bar3"){{
+                    moveX = 3;
+                    x = -.4f;
+                    mirror = true;
+                    progress = PartProgress.recoil.delay(0.4f).curve(Interp.pow2In);
+                }});
+            }};
+            shootY = -6;
+            outlineColor = Pal.darkOutline;
+            size = 5;
+            squareSprite = false;
+            envEnabled |= Env.space;
+            reload = 90;
+            recoil = 3f;
+            range = 350;
+            shootCone = 3f;
+            scaledHealth = 300;
+            rotateSpeed = 1.5f;
+            researchCostMultiplier = 0.15f;
+            buildTime = 60f * 6f;
+        }};
         lob = new BigItemTurret("lob"){{
             requirements(Category.turret, with(Items.beryllium, 25, Items.silicon, 40, Items.graphite, 20));
             ammo(

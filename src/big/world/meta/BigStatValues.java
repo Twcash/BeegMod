@@ -11,6 +11,7 @@ import arc.util.Scaling;
 import arc.util.Strings;
 import big.entities.bullets.GambleBulletType;
 import big.entities.bullets.SeqBulletType;
+import mindustry.Vars;
 import mindustry.content.StatusEffects;
 import mindustry.ctype.UnlockableContent;
 import mindustry.entities.bullet.BulletType;
@@ -18,11 +19,13 @@ import mindustry.gen.Icon;
 import mindustry.graphics.Pal;
 import mindustry.type.UnitType;
 import mindustry.ui.Styles;
+import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.defense.turrets.Turret;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.meta.StatValue;
 
 import static mindustry.Vars.tilesize;
+import static mindustry.gen.Icon.lock;
 import static mindustry.world.meta.StatValues.fixValue;
 import static mindustry.world.meta.StatValues.withTooltip;
 
@@ -57,7 +60,7 @@ public class BigStatValues {
                 table.table(Styles.grayPanel, bt -> {
                     bt.left().top().defaults().padRight(3).left();
                     //no point in displaying unit icon twice
-                    if (!compact && !(t instanceof Turret)) {
+                    if (!compact) {
                         bt.table(title -> {
                             title.image(icon(t)).size(3 * 8).padRight(4).right().scaling(Scaling.fit).top().with(i -> withTooltip(i, t, false));
 
@@ -263,8 +266,9 @@ public class BigStatValues {
         };
     }
 
-    //Simply copied vanilla code
     private static TextureRegion icon(UnlockableContent t) {
+        if(t instanceof ItemTurret v) return v.fullIcon;
+        if(Vars.state.isCampaign()) return t.unlocked() ? t.uiIcon : lock.getRegion();
         return t.uiIcon;
     }
 
