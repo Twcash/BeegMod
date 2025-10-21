@@ -13,6 +13,7 @@ public class DeflectBulletType extends BasicBulletType {
     //Sound made when deflected.
     public Sound deflectSound = Sounds.none;
 
+
     public DeflectBulletType(float speed, float damage, String bulletSprite){
         super(speed, damage);
         this.sprite = bulletSprite;

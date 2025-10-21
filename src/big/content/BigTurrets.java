@@ -371,7 +371,7 @@ public class BigTurrets {
             scaledHealth = 300;
             rotateSpeed = 1.5f;
             researchCostMultiplier = 0.15f;
-            buildTime = 60f * 6f;
+            buildTime = 60f * 30f;
         }};
         lob = new BigItemTurret("lob"){{
             requirements(Category.turret, with(Items.beryllium, 25, Items.silicon, 40, Items.graphite, 20));
