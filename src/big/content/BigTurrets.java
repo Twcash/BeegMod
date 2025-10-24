@@ -1,19 +1,23 @@
 package big.content;
 
+import arc.func.Cons;
 import arc.graphics.Color;
 import arc.math.Interp;
 import arc.util.Time;
+import big.entities.bullets.AOEBulletType;
 import big.entities.bullets.DeflectBulletType;
 import big.entities.bullets.GambleBulletType;
 import big.entities.bullets.SeqBulletType;
 import big.world.meta.blocks.turrets.BigItemTurret;
 import big.world.meta.blocks.turrets.BigPayloadAmmoTurret;
-import mindustry.content.Blocks;
-import mindustry.content.Fx;
-import mindustry.content.Items;
-import mindustry.content.Liquids;
+import mindustry.content.*;
+import mindustry.ctype.UnlockableContent;
 import mindustry.entities.Effect;
 import mindustry.entities.bullet.BasicBulletType;
+import mindustry.entities.bullet.BulletType;
+import mindustry.entities.bullet.InterceptorBulletType;
+import mindustry.entities.bullet.LightningBulletType;
+import mindustry.entities.effect.ExplosionEffect;
 import mindustry.entities.effect.MultiEffect;
 import mindustry.entities.part.RegionPart;
 import mindustry.entities.pattern.ShootSpread;
@@ -29,6 +33,7 @@ import mindustry.world.meta.Env;
 import static mindustry.type.ItemStack.with;
 
 public class BigTurrets {
+
     //Breach
     public static Block pin, drill, puncture, rupture;
     //Diffuse
@@ -195,7 +200,7 @@ public class BigTurrets {
                         trailWidth = 5;
                         trailInterp = Interp.pow2In;
                     }},
-                    Items.carbide, new BasicBulletType(14f, 400, "aquarion-chunky-bullet"){{
+                    Items.carbide, new BasicBulletType(14f, 400, "big-chunky-bullet"){{
                         width = 26f;
                         height = 35;
                         hitSize = 7f;
@@ -295,22 +300,146 @@ public class BigTurrets {
         rupture = new BigPayloadAmmoTurret("rupture"){{
             requirements(Category.turret, with(Items.beryllium, 900, Items.silicon, 600, Items.tungsten, 300, Items.surgeAlloy, 150));
             ammo(
-                    Blocks.berylliumWall,  new BasicBulletType(7.5f, 85){{
-                        width = 12f;
-                        hitSize = 7f;
-                        height = 20f;
-                        shootEffect = Fx.none;
-                        smokeEffect = Fx.shootBigSmoke;
+                    Blocks.berylliumWall,  new InterceptorBulletType(12f, 500, "big-blockBullet"){{
+                        width = 10f;
+                        hitSize = 15f;
+                        height = 10f;
+                        shootEffect = Fx.shootTitan;
+                        smokeEffect = Fx.shootSmokeTitan;
                         ammoMultiplier = 1;
-                        pierceCap = 2;
+                        pierceCap = 5;
                         pierce = true;
                         pierceBuilding = true;
                         hitColor = backColor = trailColor = Pal.berylShot;
+                        trailInterval = 3;
+                        trailEffect = new MultiEffect(Fx.artilleryTrail, Fx.artilleryTrailSmoke);
                         frontColor = Color.white;
-                        trailWidth = 2.1f;
-                        trailLength = 10;
+                        trailWidth = 10f;
+                        trailLength = 5;
+                        knockback = 15;
+                        status = BigStatusEffects.shattered;
+                        statusDuration = 10*60f;
                         hitEffect = despawnEffect = Fx.hitBulletColor;
                         buildingDamageMultiplier = 0.3f;
+                        fragBullets = 5;
+                        fragBullet = new BasicBulletType(5, 75){{
+                            width = 12;
+                            height = 8;
+                            frontColor = Color.white;
+                            backColor = Pal.berylShot;
+                            lifetime = 10;
+                            hitEffect = Fx.hitBulletBig;
+                            hitEffect = despawnEffect = Fx.hitBulletColor;
+                        }};
+                    }},
+                    Blocks.tungstenWall,  new InterceptorBulletType(10f, 800, "big-blockBullet"){{
+                        width = 12f;
+                        hitSize = 12f;
+                        height = 12f;
+                        shootEffect = Fx.shootTitan;
+                        smokeEffect = Fx.shootSmokeTitan;
+                        ammoMultiplier = 2;
+                        pierceCap = 10;
+                        pierce = true;
+                        pierceBuilding = true;
+                        hitColor = backColor = trailColor = Pal.tungstenShot;
+                        trailInterval = 2;
+                        trailEffect = new MultiEffect(Fx.artilleryTrail, Fx.artilleryTrailSmoke);
+                        frontColor = Color.white;
+                        trailWidth = 10f;
+                        trailLength = 9;
+                        knockback = 20;
+                        lifetime = 50;
+                        rangeChange = 60;
+                        status = BigStatusEffects.shattered;
+                        statusDuration = 10*60f;
+                        hitEffect = despawnEffect = Fx.hitBulletColor;
+                        buildingDamageMultiplier = 0.3f;
+                    }},
+                    Blocks.reinforcedSurgeWall,  new BasicBulletType(12f, 650, "big-blockBullet"){{
+                        width = 12f;
+                        hitSize = 12f;
+                        height = 12f;
+                        shootEffect = Fx.shootTitan;
+                        smokeEffect = Fx.shootSmokeTitan;
+                        ammoMultiplier = 2;
+                        pierceCap = 4;
+                        pierce = true;
+                        pierceBuilding = true;
+                        hitColor = backColor = trailColor = Pal.accent;
+                        trailInterval = 2;
+                        trailEffect = new MultiEffect(Fx.artilleryTrail, Fx.artilleryTrailSmoke);
+                        frontColor = Color.white;
+                        trailWidth =4f;
+                        trailLength = 15;
+                        knockback = 20;
+                        lifetime = 55;
+                        rangeChange = 70;
+                        lightning = 12;
+                        lightningLength = 12;
+                        lightningLengthRand = 14;
+                        trailParam = 4;
+                        lightningColor = Pal.accent;
+                        lightningDamage = 10;
+                        bulletInterval = 3;
+                        intervalDelay = 10;
+                        intervalBullet = new LightningBulletType(){{
+                            damage = 5;
+                            collidesAir = false;
+                            ammoMultiplier = 1f;
+                            lightningColor = Pal.accent;
+                            lightningLength = 9;
+                            lightningLengthRand = 11;
+                            buildingDamageMultiplier = 0.25f;
+                            status = StatusEffects.shocked;
+                            statusDuration = 10f;
+                            lightningType = new BulletType(0.00001f, 5){{
+                                lifetime = Fx.lightning.lifetime;
+                                hitEffect = Fx.hitLancer;
+                                despawnEffect = Fx.none;
+                                status = StatusEffects.shocked;
+                                statusDuration = 10f;
+                                hittable = false;
+                                lightColor = Color.white;
+                                buildingDamageMultiplier = 0.25f;
+                            }};
+                        }};
+
+                        hitEffect = despawnEffect = Fx.hitBulletColor;
+                        buildingDamageMultiplier = 0.3f;
+                    }},
+                    BigDefense.oxideWall,  new BasicBulletType(15f, 350, "big-blockBullet"){{
+                        width = 10f;
+                        hitSize = 15f;
+                        height = 10f;
+                        shootEffect = Fx.shootTitan;
+                        smokeEffect = Fx.shootSmokeTitan;
+                        ammoMultiplier = 1;
+                        pierceCap = 3;
+                        pierce = true;
+                        pierceBuilding = true;
+                        hitColor = backColor = trailColor = Items.oxide.color;
+                        trailInterval = 3;
+                        trailEffect = new MultiEffect(Fx.artilleryTrail, Fx.artilleryTrailSmoke);
+                        frontColor = Color.white;
+                        trailWidth = 10f;
+                        trailLength = 15;
+                        status = StatusEffects.corroded;
+                        statusDuration = 15*60f;
+                        hitEffect = despawnEffect = Fx.hitBulletColor;
+                        buildingDamageMultiplier = 0.3f;
+                        fragBullets = 8;
+                        fragBullet = new AOEBulletType(90, 240, 12, Items.oxide.color){{
+                            width = 12;
+                            height = 8;
+                            drag = 0.16f;
+                            speed = 8;
+                            frontColor = Color.white;
+                            backColor = Pal.berylShot;
+                            status = StatusEffects.corroded;
+                            statusDuration = 5*60f;
+                            hitEffect = despawnEffect = Fx.hitBulletColor;
+                        }};
                     }},
                     pin,  new BasicBulletType(7.5f, 85){{
                         width = 12f;
@@ -366,7 +495,7 @@ public class BigTurrets {
             envEnabled |= Env.space;
             reload = 90;
             recoil = 3f;
-            range = 350;
+            range = 400;
             shootCone = 3f;
             scaledHealth = 300;
             rotateSpeed = 1.5f;

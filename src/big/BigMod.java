@@ -3,10 +3,7 @@ package big;
 import arc.Core;
 import arc.Events;
 import arc.graphics.g2d.TextureRegion;
-import big.content.BigCrafters;
-import big.content.BigDefense;
-import big.content.BigStatusEffects;
-import big.content.BigTurrets;
+import big.content.*;
 import big.ui.fragments.ScoreBoardFragment;
 import mindustry.Vars;
 import mindustry.game.EventType;
@@ -25,8 +22,9 @@ public class BigMod extends Mod {
     public void loadContent() {
         BigStatusEffects.load();
         BigCrafters.load();
-        BigTurrets.load();
         BigDefense.load();
+        BigTurrets.load();
+        BigUnitBlocks.load();
     }
     //TODO Move to own handler class.
     @Override
